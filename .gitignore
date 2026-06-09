@@ -20,3 +20,5 @@ output/
 # system
 .DS_Store
 Thumbs.db
+
+.vercel
