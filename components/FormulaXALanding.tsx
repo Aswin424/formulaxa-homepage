@@ -144,11 +144,13 @@ export default function FormulaXALanding() {
       }
 
       if (problemRef.current) {
+        const isDesktopStory = window.matchMedia("(min-width: 1024px)").matches;
+
         ScrollTrigger.create({
           trigger: problemRef.current,
           start: "top top",
-          end: "+=2600",
-          pin: true,
+          end: isDesktopStory ? "+=2600" : "bottom bottom",
+          pin: isDesktopStory,
           scrub: true,
           onUpdate: (self) => {
             setActiveProblem(Math.min(problemLines.length - 1, Math.floor(self.progress * problemLines.length)));
@@ -178,9 +180,10 @@ export default function FormulaXALanding() {
   }, [problemLines.length]);
 
   return (
-    <main ref={mainRef} className="relative overflow-hidden bg-carbon-950 text-white">
+    <main ref={mainRef} className="relative overflow-x-hidden bg-carbon-950 text-white">
       <div ref={progressRef} className="fixed left-0 top-0 z-50 h-1 w-full origin-left scale-x-0 bg-primary-gradient" />
       <div className="noise" />
+      <FloatingNav />
       <Hero y={heroY} opacity={heroOpacity} />
       <ProblemSection lines={problemLines} active={activeProblem} refEl={problemRef} />
       <EcosystemSection />
@@ -195,6 +198,35 @@ export default function FormulaXALanding() {
   );
 }
 
+function FloatingNav() {
+  const links = [
+    ["Home", "#home"],
+    ["Pricing", "#pricing"],
+    ["Company", "#company"],
+  ];
+
+  return (
+    <nav className="fixed left-1/2 top-4 z-[60] w-[calc(100%-1rem)] max-w-[34rem] -translate-x-1/2 px-1 sm:top-5">
+      <div className="flex h-12 items-center justify-between rounded-full border border-white/12 bg-black/30 px-4 shadow-[0_18px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-5">
+        <a href="#home" className="shrink-0 text-sm font-semibold tracking-normal text-white sm:text-base">
+          FormulaXA
+        </a>
+        <div className="flex items-center gap-1 rounded-full border border-white/8 bg-white/[0.04] p-1">
+          {links.map(([label, href]) => (
+            <a
+              key={label}
+              href={href}
+              className="rounded-full px-2.5 py-1.5 text-xs font-medium text-white/82 transition hover:bg-white/10 hover:text-white sm:px-3 sm:text-sm"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function Hero({
   y,
   opacity,
@@ -203,7 +235,7 @@ function Hero({
   opacity: MotionValue<number>;
 }) {
   return (
-    <section className="relative flex min-h-screen items-center justify-center px-5 py-28 sm:px-8">
+    <section id="home" className="relative flex min-h-[100svh] items-center justify-center px-4 py-20 sm:px-8 sm:py-28">
       <video
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
@@ -221,7 +253,7 @@ function Hero({
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-gray-300 backdrop-blur-xl"
+          className="mb-6 inline-flex max-w-[21rem] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-center text-xs leading-5 text-white shadow-[0_12px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:mb-7 sm:max-w-none sm:text-sm"
         >
           <Sparkles className="h-4 w-4 text-electric" />
           The operating system for the entire fitness industry
@@ -231,7 +263,7 @@ function Hero({
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-6xl text-balance text-6xl font-semibold leading-[0.93] tracking-normal text-white sm:text-7xl md:text-8xl lg:text-[7.4rem] xl:text-[8.4rem]"
+          className="max-w-6xl text-balance text-[3.65rem] font-semibold leading-[0.9] tracking-normal text-white [text-shadow:_0_3px_28px_rgb(0_0_0_/_0.42)] min-[390px]:text-[4rem] sm:text-7xl md:text-8xl lg:text-[7.4rem] xl:text-[8.4rem]"
         >
           One Platform. Every Level.
         </motion.h1>
@@ -240,7 +272,7 @@ function Hero({
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 max-w-3xl text-balance text-lg leading-8 text-gray-300 sm:text-xl"
+          className="mt-6 max-w-[22rem] text-balance text-base leading-7 text-white [text-shadow:_0_2px_18px_rgb(0_0_0_/_0.42)] sm:mt-8 sm:max-w-3xl sm:text-xl sm:leading-8"
         >
           From your first workout to running an entire fitness business, FormulaXA powers every stage of the fitness journey.
         </motion.p>
@@ -249,23 +281,23 @@ function Hero({
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4"
         >
           <a
-            href="#cta"
-            className="group inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-gray-200"
+            href="#pricing"
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-gray-200"
           >
             Start Free <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </a>
           <a
             href="#vision"
-            className="inline-flex h-12 items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-6 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white/24 hover:bg-white/[0.1]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/12 bg-black/20 px-6 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white/24 hover:bg-black/30"
           >
             <Play className="h-4 w-4 fill-white" /> Watch Demo
           </a>
         </motion.div>
       </motion.div>
-      <ChevronDown className="absolute bottom-8 h-6 w-6 animate-bounce text-white/50" />
+      <ChevronDown className="absolute bottom-6 h-6 w-6 animate-bounce text-white/70 sm:bottom-8" />
     </section>
   );
 }
@@ -280,63 +312,191 @@ function ProblemSection({
   refEl: React.RefObject<HTMLDivElement | null>;
 }) {
   const isSolution = active === lines.length - 1;
+  const activeLine = lines[active] ?? lines[0];
+  const stateColor = isSolution ? "text-sky-300" : "text-[#FF1F1F]";
+  const [isMobileSceneActive, setIsMobileSceneActive] = useState(false);
+
+  useEffect(() => {
+    let frame = 0;
+
+    const updateMobileScene = () => {
+      const section = refEl.current;
+      if (!section || window.matchMedia("(min-width: 1024px)").matches) {
+        setIsMobileSceneActive(false);
+        frame = window.requestAnimationFrame(updateMobileScene);
+        return;
+      }
+
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const nextActive = rect.top <= viewportHeight * 0.42 && rect.bottom >= viewportHeight * 0.58;
+
+      setIsMobileSceneActive((current) => (current === nextActive ? current : nextActive));
+      frame = window.requestAnimationFrame(updateMobileScene);
+    };
+
+    frame = window.requestAnimationFrame(updateMobileScene);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [refEl]);
 
   return (
-    <section ref={refEl} className="relative flex min-h-screen items-center overflow-hidden border-y border-white/5 bg-carbon-900 px-5 py-28 sm:px-8">
+    <section
+      ref={refEl}
+      className="relative h-[720svh] overflow-visible border-y border-white/5 bg-carbon-900 px-4 sm:px-8 lg:flex lg:h-auto lg:min-h-screen lg:items-center lg:overflow-hidden lg:py-28"
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={isSolution ? "solution-glow" : "problem-glow"}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.65 }}
+          className={`absolute inset-0 ${
+            isSolution
+              ? "bg-[radial-gradient(circle_at_72%_50%,rgba(56,189,248,0.18),transparent_30rem)]"
+              : "bg-[radial-gradient(circle_at_72%_50%,rgba(255,31,31,0.16),transparent_30rem)]"
+          }`}
+        />
+      </AnimatePresence>
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-carbon-950 to-transparent" />
-      <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
-        <div>
-          <motion.p
-            key={isSolution ? "solution-label" : "problem-label"}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className={`mb-5 text-sm font-medium uppercase tracking-[0.34em] ${isSolution ? "text-sky-400" : "text-[#FF1F1F]"}`}
+
+      <AnimatePresence>
+        {isMobileSceneActive ? (
+          <motion.div
+            key="mobile-problem-fixed-scene"
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -24, scale: 0.98 }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="pointer-events-none fixed left-4 right-4 top-0 z-40 flex h-[100dvh] items-center justify-center lg:hidden"
           >
-            {isSolution ? "The solution" : "The problem"}
-          </motion.p>
-          <motion.p
-            key={isSolution ? "solution-copy" : "problem-copy"}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-sm text-lg leading-8 text-white"
-          >
-            {isSolution
-              ? "One connected operating system where athletes, trainers, gyms, and brands grow from the same foundation."
-              : "Fitness has moved online, but the infrastructure stayed split across isolated apps, spreadsheets, and subscriptions."}
-          </motion.p>
-        </div>
-        <div className="relative min-h-[360px]">
-          {lines.map((line, index) => (
-            <motion.h2
-              key={line}
-              animate={{ opacity: active === index ? 1 : 0.12, y: active === index ? 0 : 28, filter: active === index ? "blur(0px)" : "blur(2px)" }}
-              transition={{ duration: 0.55 }}
-              className={`absolute inset-0 flex items-center text-balance text-5xl font-semibold leading-[1.02] sm:text-6xl lg:text-8xl ${
-                index === lines.length - 1 ? "text-sky-300" : "text-[#FF1F1F]"
-              }`}
-            >
-              {line}
-            </motion.h2>
-          ))}
-        </div>
+            <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-6 min-[390px]:gap-7">
+              <ProblemStateCard active={active} isSolution={isSolution} lines={lines} />
+              <ProblemStoryHeadline activeLine={activeLine} stateColor={stateColor} mobile />
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <div className="sticky top-0 z-10 mx-auto flex h-[100dvh] w-full max-w-md flex-col justify-center gap-6 opacity-0 min-[390px]:gap-7 lg:hidden" aria-hidden="true">
+        <ProblemStateCard active={active} isSolution={isSolution} lines={lines} />
+        <ProblemStoryHeadline activeLine={activeLine} stateColor={stateColor} mobile />
+      </div>
+
+      <div className="relative z-10 mx-auto hidden w-full max-w-7xl gap-12 lg:grid lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
+        <ProblemStateCard active={active} isSolution={isSolution} lines={lines} variant="desktop" />
+        <ProblemStoryHeadline activeLine={activeLine} stateColor={stateColor} />
       </div>
     </section>
   );
 }
 
+function ProblemStateCard({
+  active,
+  isSolution,
+  lines,
+  variant = "mobile",
+}: {
+  active: number;
+  isSolution: boolean;
+  lines: string[];
+  variant?: "mobile" | "desktop";
+}) {
+  const isDesktop = variant === "desktop";
+
+  return (
+    <motion.div
+      animate={{
+        borderColor: isDesktop ? "rgba(255,255,255,0)" : isSolution ? "rgba(56,189,248,0.28)" : "rgba(255,31,31,0.28)",
+        boxShadow: isDesktop ? "0 0 0 rgba(0,0,0,0)" : isSolution ? "0 24px 80px rgba(56,189,248,0.08)" : "0 24px 80px rgba(255,31,31,0.07)",
+      }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      className={
+        isDesktop
+          ? "relative z-10"
+          : "relative z-10 rounded-2xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-xl min-[390px]:p-5 sm:p-6"
+      }
+    >
+      <motion.p
+        key={isSolution ? "solution-label" : "problem-label"}
+        initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className={`mb-5 text-sm font-medium uppercase tracking-[0.34em] ${isSolution ? "text-sky-400" : "text-[#FF1F1F]"}`}
+      >
+        {isSolution ? "The solution" : "The problem"}
+      </motion.p>
+      <p className={`${isDesktop ? "max-w-sm text-lg leading-8" : "max-w-sm text-sm leading-6 min-[390px]:text-base min-[390px]:leading-7 sm:text-lg sm:leading-8"} text-white`}>
+        {isSolution
+          ? "One connected operating system where athletes, trainers, gyms, and brands grow from the same foundation."
+          : "Fitness has moved online, but the infrastructure stayed split across isolated apps, spreadsheets, and subscriptions."}
+      </p>
+      <div className={`${isDesktop ? "mt-8" : "mt-5 sm:mt-7"} flex gap-2`}>
+        {lines.map((line, index) => (
+          <motion.span
+            key={line}
+            animate={{
+              width: active === index ? 28 : 8,
+              opacity: active === index ? 1 : 0.32,
+              backgroundColor: index === lines.length - 1 ? "#38BDF8" : "#FF1F1F",
+            }}
+            transition={{ duration: 0.35 }}
+            className="h-1.5 rounded-full"
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function ProblemStoryHeadline({
+  activeLine,
+  stateColor,
+  mobile = false,
+}: {
+  activeLine: string;
+  stateColor: string;
+  mobile?: boolean;
+}) {
+  return (
+    <div className={`${mobile ? "h-[8.75rem] min-[390px]:h-[9.75rem]" : "min-h-[360px]"} relative overflow-hidden`}>
+      <motion.div
+        key={`${activeLine}-ghost`}
+        initial={{ opacity: 0, scale: 0.96, filter: "blur(24px)" }}
+        animate={{ opacity: 0.16, scale: 1, filter: "blur(18px)" }}
+        transition={{ duration: 0.6 }}
+        className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-5xl" : "items-center text-8xl"} ${stateColor}`}
+      >
+        {activeLine}
+      </motion.div>
+      <AnimatePresence mode="wait">
+        <motion.h2
+          key={activeLine}
+          initial={{ opacity: 0, y: 42, scale: 0.97, filter: "blur(18px)" }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -42, scale: 0.98, filter: "blur(18px)" }}
+          transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+          className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-[2.1rem] min-[390px]:text-[2.45rem]" : "items-center text-8xl"} ${stateColor}`}
+        >
+          {activeLine}
+        </motion.h2>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function EcosystemSection() {
   return (
-    <section className="relative bg-white px-5 py-28 text-carbon-950 sm:px-8 lg:py-40">
+    <section className="relative bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-40">
       <SectionHeader eyebrow="The ecosystem" title="Built for everyone in fitness." body="Athletes, trainers, gyms, and brands share one connected foundation, so every relationship compounds instead of resetting." />
-      <div className="mx-auto mt-16 grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mx-auto mt-10 grid max-w-7xl gap-4 sm:mt-16 md:grid-cols-2 xl:grid-cols-4">
         {ecosystem.map((item, index) => {
           const Icon = item.icon;
           return (
             <Reveal key={item.title} delay={index * 0.08}>
-              <div className="group h-full rounded-2xl border border-white/10 bg-carbon-950 p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/70 hover:shadow-[0_30px_90px_rgba(14,165,233,0.18)]">
-                <div className="mb-10 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-black">
+              <div className="group h-full rounded-2xl border border-white/10 bg-carbon-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/70 hover:shadow-[0_30px_90px_rgba(14,165,233,0.18)] sm:p-7">
+                <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-black sm:mb-10">
                   <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-2xl font-semibold">{item.title}</h3>
@@ -360,10 +520,10 @@ function EcosystemSection() {
 function GrowthJourney({ refEl }: { refEl: React.RefObject<HTMLDivElement | null> }) {
   const steps = ["Athlete", "Trainer", "Coach", "Gym Owner", "Fitness Brand"];
   return (
-    <section ref={refEl} className="relative overflow-hidden bg-carbon-850 px-5 py-28 sm:px-8 lg:py-40">
-      <div className="absolute left-1/2 top-0 h-full w-px bg-white/5" />
+    <section ref={refEl} className="relative overflow-hidden bg-carbon-850 px-4 py-20 sm:px-8 sm:py-28 lg:py-40">
+      <div className="absolute left-1/2 top-0 hidden h-full w-px bg-white/5 sm:block" />
       <SectionHeader eyebrow="Growth journey" title="Grow without changing platforms." body="FormulaXA follows the user from their first tracked workout to an entire business, community, and brand ecosystem." />
-      <div className="relative mx-auto mt-20 max-w-3xl">
+      <div className="relative mx-auto mt-12 max-w-3xl sm:mt-20">
         <div className="absolute left-5 top-0 h-full w-px origin-top bg-white/10 sm:left-1/2">
           <div className="timeline-line-fill h-full w-full origin-top bg-gradient-to-b from-sky-500 via-cyan-300 to-white" />
         </div>
@@ -373,9 +533,9 @@ function GrowthJourney({ refEl }: { refEl: React.RefObject<HTMLDivElement | null
               <div className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-carbon-950 shadow-cyan sm:absolute sm:left-1/2 sm:-translate-x-1/2">
                 <span className="h-3 w-3 rounded-full bg-electric" />
               </div>
-              <div className="glass w-full rounded-2xl p-6 sm:w-[42%]">
+              <div className="glass w-full rounded-2xl p-5 sm:w-[42%] sm:p-6">
                 <div className="text-sm text-gray-500">Level {index + 1}</div>
-                <h3 className="mt-2 text-3xl font-semibold">{step}</h3>
+                <h3 className="mt-2 text-2xl font-semibold sm:text-3xl">{step}</h3>
               </div>
             </div>
           </Reveal>
@@ -387,9 +547,9 @@ function GrowthJourney({ refEl }: { refEl: React.RefObject<HTMLDivElement | null
 
 function ProductsSection() {
   return (
-    <section className="bg-white px-5 py-28 text-carbon-950 sm:px-8 lg:py-40">
+    <section className="bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-40">
       <SectionHeader eyebrow="Products" title="One ecosystem. Five product surfaces." body="Each product can stand alone, but together they become an operating layer for fitness growth." />
-      <div className="mx-auto mt-16 grid max-w-7xl gap-5 lg:grid-cols-5">
+      <div className="mx-auto mt-10 grid max-w-7xl gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-5">
         {products.map(([title, body, Icon], index) => (
           <Reveal key={title} delay={index * 0.07}>
             <div className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-carbon-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/70 hover:shadow-[0_30px_90px_rgba(14,165,233,0.18)]">
@@ -409,9 +569,9 @@ function ComparisonSection() {
   const traditional = ["Point Solutions", "Multiple Subscriptions", "Data Silos", "Limited Growth"];
   const formula = ["Unified Ecosystem", "One Account", "Connected Data", "Infinite Growth Path"];
   return (
-    <section className="relative bg-carbon-900 px-5 py-28 sm:px-8 lg:py-40">
+    <section className="relative bg-carbon-900 px-4 py-20 sm:px-8 sm:py-28 lg:py-40">
       <SectionHeader eyebrow="Why FormulaXA" title="The category needs a system, not another tool." body="FormulaXA replaces the fragmented stack with one connected account, data graph, and growth path." />
-      <div className="mx-auto mt-16 grid max-w-6xl gap-5 lg:grid-cols-2">
+      <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:mt-16 lg:grid-cols-2">
         <Reveal>
           <ComparisonCard title="Traditional Fitness Software" items={traditional} negative />
         </Reveal>
@@ -425,11 +585,11 @@ function ComparisonSection() {
 
 function ComparisonCard({ title, items, negative = false }: { title: string; items: string[]; negative?: boolean }) {
   return (
-    <div className={`glass rounded-2xl p-7 ${negative ? "opacity-75" : "shadow-glow"}`}>
-      <h3 className="text-2xl font-semibold">{title}</h3>
-      <div className="mt-8 space-y-4">
+    <div className={`glass rounded-2xl p-5 sm:p-7 ${negative ? "opacity-75" : "shadow-glow"}`}>
+      <h3 className="text-xl font-semibold sm:text-2xl">{title}</h3>
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {items.map((item) => (
-          <div key={item} className="flex items-center gap-4 rounded-xl border border-white/8 bg-white/[0.035] p-4">
+          <div key={item} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.035] p-4 sm:gap-4">
             {negative ? <X className="h-5 w-5 text-red-300" /> : <BadgeCheck className="h-5 w-5 text-electric" />}
             <span className="text-gray-200">{item}</span>
           </div>
@@ -475,10 +635,10 @@ function VisionSection() {
   }, [lines.length]);
 
   return (
-    <section ref={sectionRef} id="vision" className="relative h-[420vh] bg-white px-5 text-carbon-950 sm:px-8">
+    <section ref={sectionRef} id="vision" className="relative h-[340vh] bg-white px-4 text-carbon-950 sm:h-[420vh] sm:px-8">
       <div className="absolute inset-x-0 top-0 z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center px-5 text-center sm:px-8">
         {isPinned ? (
-          <div className="fixed left-1/2 top-1/2 z-30 w-[min(72rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2">
+          <div className="fixed left-1/2 top-1/2 z-30 w-[min(72rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2">
             <AnimatePresence mode="wait">
             <motion.h2
               key={lines[activeLine]}
@@ -486,7 +646,7 @@ function VisionSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -24 }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="text-balance text-5xl font-semibold leading-[1.05] text-black sm:text-6xl lg:text-8xl"
+              className="text-balance text-4xl font-semibold leading-[1.05] text-black sm:text-6xl lg:text-8xl"
             >
               {lines[activeLine]}
             </motion.h2>
@@ -500,12 +660,12 @@ function VisionSection() {
 
 function SocialProofSection() {
   return (
-    <section className="bg-carbon-850 px-5 py-28 sm:px-8 lg:py-40">
+    <section className="bg-carbon-850 px-4 py-20 sm:px-8 sm:py-28 lg:py-40">
       <SectionHeader eyebrow="Social proof" title="Built for every role in the journey." body="A connected platform changes the experience for athletes, operators, and everyone building around them." />
-      <div className="mx-auto mt-16 grid max-w-6xl gap-5 lg:grid-cols-3">
+      <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:mt-16 lg:grid-cols-3">
         {testimonials.map((item, index) => (
           <Reveal key={item.name} delay={index * 0.08}>
-            <figure className="glass h-full rounded-2xl p-7">
+            <figure className="glass h-full rounded-2xl p-5 sm:p-7">
               <div className={`mb-7 h-14 w-14 rounded-full bg-gradient-to-br ${item.gradient} p-[2px]`}>
                 <div className="flex h-full w-full items-center justify-center rounded-full bg-carbon-950 text-sm font-semibold">{item.name.slice(0, 2)}</div>
               </div>
@@ -524,11 +684,11 @@ function SocialProofSection() {
 
 function FinalCta() {
   return (
-    <section id="cta" className="relative overflow-hidden bg-white px-5 py-28 text-carbon-950 sm:px-8 lg:py-44">
+    <section id="pricing" className="relative overflow-hidden bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-44">
       <Reveal>
         <div className="relative z-10 mx-auto max-w-5xl text-center">
           <p className="mb-6 text-sm font-medium uppercase tracking-[0.34em] text-electric">FormulaXA</p>
-          <h2 className="text-balance text-6xl font-semibold leading-[1] sm:text-7xl lg:text-8xl">
+          <h2 className="text-balance text-5xl font-semibold leading-[1] sm:text-7xl lg:text-8xl">
             Fitness Starts Here.
             <span className="block text-gray-600">Businesses Scale Here.</span>
           </h2>
@@ -547,10 +707,10 @@ function FinalCta() {
 function Footer() {
   const links = ["Platform", "Products", "Pricing", "Resources", "Company"];
   return (
-    <footer className="border-t border-white/8 bg-carbon-950 px-5 py-10 sm:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
+    <footer id="company" className="border-t border-white/8 bg-carbon-950 px-4 py-10 sm:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-7 md:flex-row md:items-center md:justify-between">
         <div className="text-xl font-semibold">FormulaXA</div>
-        <nav className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-400">
+        <nav className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-400 sm:flex sm:flex-wrap">
           {links.map((link) => (
             <a key={link} href="#" className="transition hover:text-white">
               {link}
@@ -573,9 +733,9 @@ function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: strin
   return (
     <Reveal>
       <div className="mx-auto max-w-4xl text-center">
-        <p className="mb-5 text-sm font-medium uppercase tracking-[0.34em] text-electric">{eyebrow}</p>
-        <h2 className="text-balance text-5xl font-semibold leading-[1.04] sm:text-6xl lg:text-7xl">{title}</h2>
-        <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-gray-400">{body}</p>
+        <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-electric sm:mb-5 sm:text-sm sm:tracking-[0.34em]">{eyebrow}</p>
+        <h2 className="text-balance text-4xl font-semibold leading-[1.04] sm:text-6xl lg:text-7xl">{title}</h2>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-400 sm:mt-7 sm:text-lg sm:leading-8">{body}</p>
       </div>
     </Reveal>
   );
