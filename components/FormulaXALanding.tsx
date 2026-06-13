@@ -22,6 +22,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { AnalyticsEvents } from "@/lib/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -126,6 +127,29 @@ export default function FormulaXALanding() {
     return () => {
       lenis.destroy();
     };
+  }, []);
+
+  // Scroll depth tracking
+  useEffect(() => {
+    const milestones = [25, 50, 75, 100];
+    const reached = new Set<number>();
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
+      const percent = Math.round((scrollTop / docHeight) * 100);
+
+      milestones.forEach((m) => {
+        if (percent >= m && !reached.has(m)) {
+          reached.add(m);
+          AnalyticsEvents.scrollDepth(`${m}%`);
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -285,12 +309,14 @@ function Hero({
         >
           <a
             href="#pricing"
+            onClick={() => AnalyticsEvents.clickStartFree()}
             className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-gray-200"
           >
             Start Free <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </a>
           <a
             href="#vision"
+            onClick={() => AnalyticsEvents.clickWatchDemo()}
             className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/12 bg-black/20 px-6 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white/24 hover:bg-black/30"
           >
             <Play className="h-4 w-4 fill-white" /> Watch Demo
@@ -694,6 +720,7 @@ function FinalCta() {
           </h2>
           <a
             href="#"
+            onClick={() => AnalyticsEvents.clickJoinWaitlist()}
             className="mt-12 inline-flex h-14 items-center gap-2 rounded-full bg-carbon-950 px-7 text-sm font-semibold text-white transition hover:bg-black"
           >
             Join FormulaXA <ArrowRight className="h-4 w-4" />
