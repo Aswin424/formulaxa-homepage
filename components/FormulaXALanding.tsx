@@ -1,85 +1,55 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import Lenis from "lenis";
 import { AnimatePresence, motion, type MotionValue, useScroll, useTransform } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { trackContactClick, trackDownloadClick, trackNavigationClick } from "@/lib/analytics";
 import {
   ArrowRight,
   BadgeCheck,
-  BarChart3,
   Bot,
   Building2,
   Check,
   ChevronDown,
-  CircleDollarSign,
   Dumbbell,
-  Play,
+  Instagram,
+  Linkedin,
+  Smartphone,
   Sparkles,
-  Store,
   Users,
   X,
-  Zap,
 } from "lucide-react";
-import { AnalyticsEvents } from "@/lib/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ecosystem = [
   {
-    title: "Athletes",
+    title: "Fitizen",
     icon: Dumbbell,
-    points: ["Track workouts", "Join challenges", "Build consistency"],
+    points: ["Consultation", "Assessment", "Exercise program"],
   },
   {
-    title: "Trainers",
+    title: "Coach",
     icon: Users,
-    points: ["Manage clients", "Deliver programs", "Scale coaching"],
+    points: ["Manage clients", "Deliver programs", "Track progress"],
   },
   {
-    title: "Gyms",
+    title: "Fitness Enterprise",
     icon: Building2,
-    points: ["Members", "Attendance", "Operations", "Revenue"],
-  },
-  {
-    title: "Brands",
-    icon: Store,
-    points: ["Campaigns", "Partnerships", "Communities"],
+    points: ["Members", "Staff", "Operations", "Revenue"],
   },
 ];
 
 const products = [
-  ["FormulaXA Core", "The athlete app for workouts, challenges, habits, and progress.", Dumbbell],
-  ["FormulaXA Coach", "Programming, client delivery, check-ins, and scalable coaching systems.", Users],
-  ["FormulaXA Gym", "Membership, attendance, operations, revenue, and team visibility.", Building2],
-  ["FormulaXA Commerce", "Sell programs, memberships, campaigns, and brand partnerships.", CircleDollarSign],
-  ["FormulaXA AI", "An intelligence layer for coaching, retention, insights, and growth.", Bot],
+  ["Fitizen Program", "A guided 6-week personalized fitness program with consultation, assessment, weekly check-ins, and progress that stays visible.", Dumbbell, "/fitizen-program"],
+  ["Coach OS", "A coaching workspace for building programs, managing clients, reviewing check-ins, and tracking real outcomes.", Users, "/pricing"],
+  ["Enterprise OS", "A fitness business layer for members, staff, attendance, payments, leads, and daily operations.", Building2, "/pricing"],
+  ["Personalization", "Goal-based journeys that adapt around the person, their progress, lifestyle, and training history.", Bot, "/pricing"],
 ] as const;
-
-const testimonials = [
-  {
-    role: "Athlete",
-    name: "Maya R.",
-    quote:
-      "FormulaXA finally made my training feel connected. Challenges, progress, and coaching all live in one place.",
-    gradient: "from-sky-400 to-cyan-200",
-  },
-  {
-    role: "Trainer",
-    name: "Arjun S.",
-    quote:
-      "I went from scattered messages and sheets to one system my clients actually enjoy using every week.",
-    gradient: "from-cyan-300 to-white",
-  },
-  {
-    role: "Gym Owner",
-    name: "Nisha K.",
-    quote:
-      "It gives us the operational clarity of SaaS with the community feel fitness businesses need.",
-    gradient: "from-white to-cyan-300",
-  },
-];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 34 },
@@ -99,10 +69,9 @@ export default function FormulaXALanding() {
   const problemLines = useMemo(
     () => [
       "The fitness industry is fragmented.",
-      "Athletes use one app.",
-      "Trainers use another.",
-      "Gyms use spreadsheets.",
-      "Brands use disconnected tools.",
+      "Users use one app.",
+      "Coaches use another.",
+      "Fitness enterprises use spreadsheets.",
       "FormulaXA changes that.",
     ],
     [],
@@ -127,29 +96,6 @@ export default function FormulaXALanding() {
     return () => {
       lenis.destroy();
     };
-  }, []);
-
-  // Scroll depth tracking
-  useEffect(() => {
-    const milestones = [25, 50, 75, 100];
-    const reached = new Set<number>();
-
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) return;
-      const percent = Math.round((scrollTop / docHeight) * 100);
-
-      milestones.forEach((m) => {
-        if (percent >= m && !reached.has(m)) {
-          reached.add(m);
-          AnalyticsEvents.scrollDepth(`${m}%`);
-        }
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -210,12 +156,11 @@ export default function FormulaXALanding() {
       <FloatingNav />
       <Hero y={heroY} opacity={heroOpacity} />
       <ProblemSection lines={problemLines} active={activeProblem} refEl={problemRef} />
+      <VisionSection />
       <EcosystemSection />
       <GrowthJourney refEl={timelineRef} />
       <ProductsSection />
       <ComparisonSection />
-      <VisionSection />
-      <SocialProofSection />
       <FinalCta />
       <Footer />
     </main>
@@ -224,26 +169,38 @@ export default function FormulaXALanding() {
 
 function FloatingNav() {
   const links = [
-    ["Home", "#home"],
-    ["Pricing", "#pricing"],
-    ["Company", "#company"],
+    { label: "Platform", href: "/#home", active: true },
+    { label: "Pricing", href: "/pricing", active: false },
+    { label: "About Us", href: "/company", active: false },
+    { label: "Contact", href: "/contact", active: false },
   ];
 
   return (
-    <nav className="fixed left-1/2 top-4 z-[60] w-[calc(100%-1rem)] max-w-[34rem] -translate-x-1/2 px-1 sm:top-5">
+    <nav className="fixed left-1/2 top-4 z-[60] w-[calc(100%-1rem)] max-w-[42rem] -translate-x-1/2 px-1 sm:top-5">
       <div className="flex h-12 items-center justify-between rounded-full border border-white/12 bg-black/30 px-4 shadow-[0_18px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-5">
-        <a href="#home" className="shrink-0 text-sm font-semibold tracking-normal text-white sm:text-base">
-          FormulaXA
-        </a>
-        <div className="flex items-center gap-1 rounded-full border border-white/8 bg-white/[0.04] p-1">
-          {links.map(([label, href]) => (
-            <a
+        <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-extrabold tracking-normal text-white sm:text-xl" aria-label="FormulaxA home">
+          <Image
+            src="/assets/formulaxa-nav-mark.png"
+            alt=""
+            width={32}
+            height={32}
+            className="h-7 w-7 rounded-full object-contain sm:h-8 sm:w-8"
+            priority
+          />
+          <span>FormulaxA</span>
+        </Link>
+        <div className="flex min-w-0 items-center gap-3 overflow-x-auto text-nowrap sm:gap-5">
+          {links.map(({ label, href, active }) => (
+            <Link
               key={label}
               href={href}
-              className="rounded-full px-2.5 py-1.5 text-xs font-medium text-white/82 transition hover:bg-white/10 hover:text-white sm:px-3 sm:text-sm"
+              onClick={() => trackNavigationClick(label, href)}
+              className={`text-xs font-medium transition hover:text-white sm:text-sm ${
+                active ? "text-white" : "text-white/70"
+              }`}
             >
               {label}
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -273,7 +230,7 @@ function Hero({
       </video>
       <motion.div style={{ y, opacity }} className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center text-center">
         <motion.div
-          initial="hidden"
+          initial={{ opacity: 1, y: 0 }}
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
@@ -283,7 +240,7 @@ function Hero({
           The operating system for the entire fitness industry
         </motion.div>
         <motion.h1
-          initial="hidden"
+          initial={{ opacity: 1, y: 0 }}
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -292,7 +249,7 @@ function Hero({
           One Platform. Every Level.
         </motion.h1>
         <motion.p
-          initial="hidden"
+          initial={{ opacity: 1, y: 0 }}
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
@@ -301,25 +258,25 @@ function Hero({
           From your first workout to running an entire fitness business, FormulaXA powers every stage of the fitness journey.
         </motion.p>
         <motion.div
-          initial="hidden"
+          initial={{ opacity: 1, y: 0 }}
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.9, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
           className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4"
         >
           <a
-            href="#pricing"
-            onClick={() => AnalyticsEvents.clickStartFree()}
+            href="/contact"
+            onClick={() => trackContactClick("home_hero")}
             className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-gray-200"
           >
-            Start Free <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            Contact Us <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </a>
           <a
-            href="#vision"
-            onClick={() => AnalyticsEvents.clickWatchDemo()}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/12 bg-black/20 px-6 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white/24 hover:bg-black/30"
+            href="/download"
+            onClick={() => trackDownloadClick("hero", "home_hero")}
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-6 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/[0.12]"
           >
-            <Play className="h-4 w-4 fill-white" /> Watch Demo
+            Get App <Smartphone className="h-4 w-4 transition group-hover:translate-y-[-1px]" />
           </a>
         </motion.div>
       </motion.div>
@@ -355,7 +312,9 @@ function ProblemSection({
 
       const rect = section.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const nextActive = rect.top <= viewportHeight * 0.42 && rect.bottom >= viewportHeight * 0.58;
+      const sceneHasEntered = rect.top <= viewportHeight * 0.42;
+      const sceneStillOwnsViewport = rect.bottom >= viewportHeight * 0.96;
+      const nextActive = sceneHasEntered && sceneStillOwnsViewport;
 
       setIsMobileSceneActive((current) => (current === nextActive ? current : nextActive));
       frame = window.requestAnimationFrame(updateMobileScene);
@@ -397,7 +356,7 @@ function ProblemSection({
             transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-none fixed left-4 right-4 top-0 z-40 flex h-[100dvh] items-center justify-center lg:hidden"
           >
-            <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-6 min-[390px]:gap-7">
+            <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-9 min-[390px]:gap-10">
               <ProblemStateCard active={active} isSolution={isSolution} lines={lines} />
               <ProblemStoryHeadline activeLine={activeLine} stateColor={stateColor} mobile />
             </div>
@@ -405,7 +364,7 @@ function ProblemSection({
         ) : null}
       </AnimatePresence>
 
-      <div className="sticky top-0 z-10 mx-auto flex h-[100dvh] w-full max-w-md flex-col justify-center gap-6 opacity-0 min-[390px]:gap-7 lg:hidden" aria-hidden="true">
+      <div className="sticky top-0 z-10 mx-auto flex h-[100dvh] w-full max-w-md flex-col justify-center gap-9 opacity-0 min-[390px]:gap-10 lg:hidden" aria-hidden="true">
         <ProblemStateCard active={active} isSolution={isSolution} lines={lines} />
         <ProblemStoryHeadline activeLine={activeLine} stateColor={stateColor} mobile />
       </div>
@@ -486,13 +445,13 @@ function ProblemStoryHeadline({
   mobile?: boolean;
 }) {
   return (
-    <div className={`${mobile ? "h-[8.75rem] min-[390px]:h-[9.75rem]" : "min-h-[360px]"} relative overflow-hidden`}>
+    <div className={`${mobile ? "h-[11rem] min-[390px]:h-[12.5rem]" : "min-h-[360px]"} relative overflow-hidden`}>
       <motion.div
         key={`${activeLine}-ghost`}
         initial={{ opacity: 0, scale: 0.96, filter: "blur(24px)" }}
         animate={{ opacity: 0.16, scale: 1, filter: "blur(18px)" }}
         transition={{ duration: 0.6 }}
-        className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-5xl" : "items-center text-8xl"} ${stateColor}`}
+        className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-4xl min-[390px]:text-5xl" : "items-center text-8xl"} ${stateColor}`}
       >
         {activeLine}
       </motion.div>
@@ -503,7 +462,7 @@ function ProblemStoryHeadline({
           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -42, scale: 0.98, filter: "blur(18px)" }}
           transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-          className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-[2.1rem] min-[390px]:text-[2.45rem]" : "items-center text-8xl"} ${stateColor}`}
+          className={`absolute inset-0 flex text-balance font-semibold leading-[1.02] ${mobile ? "items-start text-[2rem] min-[390px]:text-[2.25rem]" : "items-center text-8xl"} ${stateColor}`}
         >
           {activeLine}
         </motion.h2>
@@ -515,8 +474,13 @@ function ProblemStoryHeadline({
 function EcosystemSection() {
   return (
     <section className="relative bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-40">
-      <SectionHeader eyebrow="The ecosystem" title="Built for everyone in fitness." body="Athletes, trainers, gyms, and brands share one connected foundation, so every relationship compounds instead of resetting." />
-      <div className="mx-auto mt-10 grid max-w-7xl gap-4 sm:mt-16 md:grid-cols-2 xl:grid-cols-4">
+      <SectionHeader
+        eyebrow="The ecosystem"
+        title="Built for everyone in fitness."
+        body="Fitizens, coaches, and fitness enterprises share one connected foundation, so every relationship compounds instead of resetting."
+        tone="light"
+      />
+      <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:mt-16 md:grid-cols-3">
         {ecosystem.map((item, index) => {
           const Icon = item.icon;
           return (
@@ -544,7 +508,7 @@ function EcosystemSection() {
 }
 
 function GrowthJourney({ refEl }: { refEl: React.RefObject<HTMLDivElement | null> }) {
-  const steps = ["Athlete", "Trainer", "Coach", "Gym Owner", "Fitness Brand"];
+  const steps = ["Fitizen", "Coach", "Fitness Enterprise"];
   return (
     <section ref={refEl} className="relative overflow-hidden bg-carbon-850 px-4 py-20 sm:px-8 sm:py-28 lg:py-40">
       <div className="absolute left-1/2 top-0 hidden h-full w-px bg-white/5 sm:block" />
@@ -573,17 +537,25 @@ function GrowthJourney({ refEl }: { refEl: React.RefObject<HTMLDivElement | null
 
 function ProductsSection() {
   return (
-    <section className="bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-40">
-      <SectionHeader eyebrow="Products" title="One ecosystem. Five product surfaces." body="Each product can stand alone, but together they become an operating layer for fitness growth." />
-      <div className="mx-auto mt-10 grid max-w-7xl gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-5">
-        {products.map(([title, body, Icon], index) => (
+    <section id="products" className="bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-40">
+      <SectionHeader
+        eyebrow="Products"
+        title="Built for every layer of fitness."
+        body="From one client journey to a full fitness business, FormulaXA keeps consultation, programming, tracking, and operations connected."
+        tone="light"
+      />
+      <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
+        {products.map(([title, body, Icon, href], index) => (
           <Reveal key={title} delay={index * 0.07}>
-            <div className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-carbon-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/70 hover:shadow-[0_30px_90px_rgba(14,165,233,0.18)]">
+            <Link href={href} className="group relative block h-full overflow-hidden rounded-2xl border border-white/10 bg-carbon-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/70 hover:shadow-[0_30px_90px_rgba(14,165,233,0.18)]">
               <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary-gradient opacity-15 blur-2xl transition group-hover:opacity-30" />
               <Icon className="mb-8 h-7 w-7 text-electric" />
               <h3 className="text-xl font-semibold">{title}</h3>
               <p className="mt-4 text-sm leading-6 text-gray-300">{body}</p>
-            </div>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              </span>
+            </Link>
           </Reveal>
         ))}
       </div>
@@ -684,44 +656,20 @@ function VisionSection() {
   );
 }
 
-function SocialProofSection() {
-  return (
-    <section className="bg-carbon-850 px-4 py-20 sm:px-8 sm:py-28 lg:py-40">
-      <SectionHeader eyebrow="Social proof" title="Built for every role in the journey." body="A connected platform changes the experience for athletes, operators, and everyone building around them." />
-      <div className="mx-auto mt-10 grid max-w-6xl gap-4 sm:mt-16 lg:grid-cols-3">
-        {testimonials.map((item, index) => (
-          <Reveal key={item.name} delay={index * 0.08}>
-            <figure className="glass h-full rounded-2xl p-5 sm:p-7">
-              <div className={`mb-7 h-14 w-14 rounded-full bg-gradient-to-br ${item.gradient} p-[2px]`}>
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-carbon-950 text-sm font-semibold">{item.name.slice(0, 2)}</div>
-              </div>
-              <blockquote className="text-lg leading-8 text-gray-200">&ldquo;{item.quote}&rdquo;</blockquote>
-              <figcaption className="mt-8">
-                <div className="font-semibold">{item.name}</div>
-                <div className="text-sm text-gray-500">{item.role}</div>
-              </figcaption>
-            </figure>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function FinalCta() {
   return (
-    <section id="pricing" className="relative overflow-hidden bg-white px-4 py-20 text-carbon-950 sm:px-8 sm:py-28 lg:py-44">
+    <section id="pricing" className="relative overflow-hidden bg-carbon-950 px-4 py-20 text-white sm:px-8 sm:py-28 lg:py-44">
       <Reveal>
         <div className="relative z-10 mx-auto max-w-5xl text-center">
           <p className="mb-6 text-sm font-medium uppercase tracking-[0.34em] text-electric">FormulaXA</p>
           <h2 className="text-balance text-5xl font-semibold leading-[1] sm:text-7xl lg:text-8xl">
             Fitness Starts Here.
-            <span className="block text-gray-600">Businesses Scale Here.</span>
+            <span className="block text-gray-400">Businesses Scale Here.</span>
           </h2>
           <a
-            href="#"
-            onClick={() => AnalyticsEvents.clickJoinWaitlist()}
-            className="mt-12 inline-flex h-14 items-center gap-2 rounded-full bg-carbon-950 px-7 text-sm font-semibold text-white transition hover:bg-black"
+            href="/contact"
+            onClick={() => trackContactClick("home_final_cta")}
+            className="mt-12 inline-flex h-14 items-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-black transition hover:bg-gray-200"
           >
             Join FormulaXA <ArrowRight className="h-4 w-4" />
           </a>
@@ -732,37 +680,56 @@ function FinalCta() {
 }
 
 function Footer() {
-  const links = ["Platform", "Products", "Pricing", "Resources", "Company"];
+  const links = [
+    { label: "Platform", href: "#home" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Fitizen", href: "/fitizen-program" },
+    { label: "About Us", href: "/company" },
+    { label: "Contact", href: "/contact" },
+  ];
   return (
     <footer id="company" className="border-t border-white/8 bg-carbon-950 px-4 py-10 sm:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-7 md:flex-row md:items-center md:justify-between">
         <div className="text-xl font-semibold">FormulaXA</div>
         <nav className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-400 sm:flex sm:flex-wrap">
           {links.map((link) => (
-            <a key={link} href="#" className="transition hover:text-white">
-              {link}
+            <a key={link.label} href={link.href} onClick={() => trackNavigationClick(link.label, link.href)} className="transition hover:text-white">
+              {link.label}
             </a>
           ))}
         </nav>
-        <div className="flex gap-3">
-          {[BarChart3, Sparkles, Zap].map((Icon, index) => (
-            <a key={index} href="#" aria-label={`Social link ${index + 1}`} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-gray-400 transition hover:text-white">
-              <Icon className="h-4 w-4" />
-            </a>
-          ))}
+        <div className="flex items-center gap-2">
+          <a
+            href="https://www.instagram.com/formulaxa/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="FormulaXA on Instagram"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-gray-400 transition hover:text-white"
+          >
+            <Instagram className="h-4 w-4" />
+          </a>
+          <a
+            href="https://www.linkedin.com/company/131274186/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="FormulaXA on LinkedIn"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-gray-400 transition hover:text-white"
+          >
+            <Linkedin className="h-4 w-4" />
+          </a>
         </div>
       </div>
     </footer>
   );
 }
 
-function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
+function SectionHeader({ eyebrow, title, body, tone = "dark" }: { eyebrow: string; title: string; body: string; tone?: "dark" | "light" }) {
   return (
     <Reveal>
       <div className="mx-auto max-w-4xl text-center">
         <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-electric sm:mb-5 sm:text-sm sm:tracking-[0.34em]">{eyebrow}</p>
-        <h2 className="text-balance text-4xl font-semibold leading-[1.04] sm:text-6xl lg:text-7xl">{title}</h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-400 sm:mt-7 sm:text-lg sm:leading-8">{body}</p>
+        <h2 className={`text-balance text-4xl font-semibold leading-[1.04] sm:text-6xl lg:text-7xl ${tone === "light" ? "text-carbon-950" : "text-white"}`}>{title}</h2>
+        <p className={`mx-auto mt-5 max-w-2xl text-base leading-7 sm:mt-7 sm:text-lg sm:leading-8 ${tone === "light" ? "text-carbon-950" : "text-gray-400"}`}>{body}</p>
       </div>
     </Reveal>
   );
