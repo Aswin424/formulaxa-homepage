@@ -197,16 +197,16 @@ export default function DownloadPage() {
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-lg font-semibold text-white/40 sm:text-xl">iOS</h2>
-                          <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
-                            PWA Ready
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-white/30">
-                          Open in Safari → Share → Add to Home Screen
-                        </p>
-                      </div>
+                                              <div className="flex items-center gap-2">
+                                                <h2 className="text-lg font-semibold text-white/40 sm:text-xl">iOS</h2>
+                                                <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-medium text-green-400">
+                                                  Available
+                                                </span>
+                                              </div>
+                                              <p className="mt-1 text-sm text-white/30">
+                                                Open in Safari → Share → Add to Home Screen
+                                              </p>
+                                            </div>
                       <Smartphone className="h-5 w-5 shrink-0 text-white/15" />
                     </div>
         </div>
