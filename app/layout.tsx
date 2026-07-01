@@ -125,7 +125,27 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         <GoogleAnalytics />
-        {children}
+                <link rel="manifest" href="/manifest.json" />
+                <meta name="theme-color" content="#065f46" />
+                <meta name="mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <meta name="apple-mobile-web-app-title" content="FormulaXA" />
+                <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180" />
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      if ('serviceWorker' in navigator) {
+                        window.addEventListener('load', () => {
+                          navigator.serviceWorker.register('/sw.js')
+                            .then(reg => console.log('SW registered:', reg.scope))
+                            .catch(err => console.log('SW registration failed:', err));
+                        });
+                      }
+                    `,
+                  }}
+                />
+                {children}
       </body>
     </html>
   );
